@@ -4,7 +4,7 @@ import nest_asyncio
 from dotenv import dotenv_values
 import discord
 
-with open(r"E:\VSC\Inzidenz Landkreise\token.txt") as myfile:
+with open(r"E:\VSC\Inzidenz\token.txt") as myfile:
     token = [next(myfile) for x in range(1)]
 
 
