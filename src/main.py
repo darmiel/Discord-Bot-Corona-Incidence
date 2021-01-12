@@ -13,11 +13,6 @@ if __name__ == "__main__":
     "<YXCVBNM,.-"
   ])
 
-  stats, err = scraper.parse_stats()
-  if len(err) != 0:
-    print("Error scraping:", err)
-    exit(1)
-
   # create discord client
   client = discord.Client()
 
@@ -34,6 +29,7 @@ if __name__ == "__main__":
     reply: discord.Message = await message.reply(f"⏱ Suche nach **{content}**...")
 
     # find nearest
+    stats = scraper.get_stats()
     matches, mode = scraper.find_nearest(content, stats, deDE)
 
     # no match found

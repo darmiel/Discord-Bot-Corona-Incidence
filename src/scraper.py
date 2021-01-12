@@ -2,8 +2,33 @@ import json
 import requests
 import keyboard
 import difflib
+import time
 
 API_URL: str = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=false&outSR=4326&f=json"
+
+stats_cache: dict = {}
+stats_date: float = 0
+cache_interval: float = 600  # seconds
+
+
+def get_stats() -> dict:
+    global stats_cache, stats_date
+
+    # check cache
+    if (time.time() - stats_date) > cache_interval:
+        stats_date = time.time()
+        print("Cache: Refreshing stats...")
+
+        # refresh cache
+        stats, err = parse_stats()
+        if len(err) != 0:
+            print("WARN: Cache Data old. Error:", err)
+            return stats_cache
+
+        # update cache
+        stats_cache = stats
+
+    return stats_cache
 
 def parse_stats() -> [dict, str]:
     di = {}
@@ -27,6 +52,7 @@ def parse_stats() -> [dict, str]:
             di[gen] = {"GEN": gen, "BEZ": bez, "cases": cases}
 
     return di, ""
+
 
 def find_nearest(county: str, search: dict, layout: keyboard.KeyboardLayout) -> [list, str]:
     # find exact match
@@ -52,7 +78,7 @@ def find_nearest(county: str, search: dict, layout: keyboard.KeyboardLayout) -> 
         # calculate keyboard distance
         distance = layout.get_word_distance(county, gen)
         if distance >= county_len_2:
-          continue
+            continue
 
         print(gen, distance)
         possible[gen] = distance
@@ -61,15 +87,15 @@ def find_nearest(county: str, search: dict, layout: keyboard.KeyboardLayout) -> 
 
     # get with difflib
     if len(possible) == 0:
-      mode = "difflib"
-      for m in difflib.get_close_matches(county, search, cutoff = 0):
-        possible[m] = -1
+        mode = "difflib"
+        for m in difflib.get_close_matches(county, search, cutoff=0):
+            possible[m] = -1
 
     # sort possible by value (lowest distance)
     sort = sorted(possible.items(), key=lambda x: (-x[1], x[0]), reverse=True)
 
     # strip to 5
     if len(sort) > 9:
-      sort = sort[:9]
+        sort = sort[:9]
 
     return sort, mode
