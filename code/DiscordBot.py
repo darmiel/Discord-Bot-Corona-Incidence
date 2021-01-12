@@ -1,17 +1,11 @@
 # -*- coding: utf-8 -*-
 #%%
 import nest_asyncio
-from dotenv import dotenv_values
 import discord
+import WebScraping
 
 with open(r"E:\VSC\Inzidenz\token.txt") as myfile:
     token = [next(myfile) for x in range(1)]
-
-
-
-
-
-import WebScraping
 
 dictionary = WebScraping.dictgenerator()
 

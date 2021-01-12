@@ -1,53 +1,40 @@
 #%%
-import time
 
+import json
 import requests
-from bs4 import BeautifulSoup
-from selenium import webdriver
 
-import textdistance
+from difflib import get_close_matches 
 
 def dictgenerator ():
-    website = 'https://covid-karte.de/'
-
-    driver = webdriver.Chrome(executable_path=r'C:\webdriver\chromedriver.exe')
-    driver.get(website)
-    time.sleep(1)
 
     numbers = []
     names = []
 
-    soup = BeautifulSoup(driver.page_source,"html5lib")
-    inzidenz = soup.find_all("td", {'class':'cases-7d-100k'})
-    for number in inzidenz:
-        numbers.append(number.text)
+    r = requests.get("https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=false&outSR=4326&f=json")
+    res = r.json()
+ 
+    # Extract specific node content.
+    hallo = res["features"]
+    länge = len(list(hallo))
 
-    LKs = soup.find_all("th", {'class':'county-name'})
-    for name in LKs:
-        names.append(name.text)
-        
-    driver.close()
+    for i in range(0, länge):
+        hallo = res["features"][i]
+
+        for channel in hallo.values():
+            numbers.append(channel['cases7_per_100k_txt'])
+            name= (channel['GEN'] + " " + channel['BEZ'])  # prints name
+            names.append(name)
+
     dictionary = dict(zip(names, numbers))
     return dictionary
    
-   
 def findLK(kreis, dictionary):
-
-    accuracydict = {}
-
-    for i in dictionary:
-        
-        accuracy = textdistance.jaccard(kreis, i)
-        accuracydict[i] = accuracy
-
-    sortedlist = sorted(accuracydict.items(), key=lambda x:x[1],reverse=True)
-    sortdict = dict(sortedlist)
-
-    firstkey = list(sortdict.keys())[0]
-
-    inzidenzwert = dictionary.get(firstkey) 
-
-    stringfordiscordchat = str(firstkey) + " hat eine inzidenz von: " + str(inzidenzwert)
+     
+    patterns = list(dictionary)
+    namelandkreis = get_close_matches(kreis, patterns, cutoff = 0)[0]
+    inzidenznumber = dictionary.get(namelandkreis)        
+    stringfordiscordchat = str(namelandkreis) + " hat eine inzidenz von: " + str(inzidenznumber)
+    
     return stringfordiscordchat
 
 #%%
