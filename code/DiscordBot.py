@@ -14,8 +14,8 @@ client = discord.Client()
 async def on_message(message):
         if message.content.startswith("!"):
           
-            landkreis = message.content
-            printcommand = WebScraping.findLK(landkreis,dictionary)
+            countie = message.content
+            printcommand = WebScraping.findCountie(countie,dictionary)
             await message.channel.send(printcommand)
             return
        
