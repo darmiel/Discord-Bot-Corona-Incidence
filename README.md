@@ -1,7 +1,11 @@
 # Discord bot, cumulative incidence values germany
 
 # Fork
-This is a fork.
+This is a fork.  
+
+**Features of this fork:**
+* Statistics are reloaded every 5 minutes
+* Key \[Keyboard\] distances are observed in case of incorrect spelling
 ![gif](assets/demo.gif)
 
 ## Table of contents
