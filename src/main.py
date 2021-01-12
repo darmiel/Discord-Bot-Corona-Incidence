@@ -42,9 +42,12 @@ if __name__ == "__main__":
 
     for m in matches:
       name = m[0]
+      possibility = m[1]
+
       val = stats[name]
       cases = round(val["cases"], 2)
-      embed.add_field(name=f"👉 {name}", value=f"{cases}", inline=True)
+
+      embed.add_field(name=f"👉 {name} [{possibility}]", value=f"{cases}", inline=True)
 
     await reply.edit(content="🤗", embed=embed)
   # login
