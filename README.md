@@ -2,7 +2,7 @@
 
 # Fork
 This is a fork.
-![gif](../assets/demo.gif)
+![gif](assets/demo.gif)
 
 ## Table of contents
 * [General info](#general-info)
