@@ -1,5 +1,9 @@
 # Discord bot, cumulative incidence values germany
 
+# Fork
+This is a fork.
+![gif](../assets/demo.gif)
+
 ## Table of contents
 * [General info](#general-info)
 * [Features](#Features)
@@ -14,6 +18,3 @@ Creates a discord bot that responds to !, if a name of a german countie is typed
 
 ## To-Do
 * Save data to a JSON file and use some statistics 
-
-# Fork
-![gif](../assets/demo.gif)
