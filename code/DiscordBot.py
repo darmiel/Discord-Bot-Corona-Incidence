@@ -32,7 +32,7 @@ async def on_message(message):
         elif command == "!update":
             msg = await message.channel.send("⏰ Updating Data...")
             response = WebScraping.downloadData()
-            await msg.edit(content="✅ Updating Data... Done!")
+            await msg.edit(content=f"✅ Updating Data... Done: {response}")
             return
     except Exception as e:
         print("Error occured: " + e)
