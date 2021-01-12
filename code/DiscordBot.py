@@ -25,13 +25,14 @@ async def on_message(message):
         reload(WebScraping)
         if command.startswith("😷"):          
             countie = message.content
+            msg = await message.channel.send("⏰ Searching for county...")
             printcommand = WebScraping.findCountie(countie,dictionary)
-            await message.channel.send(printcommand)
+            await msg.edit(content=printcommand)
             return
         elif command == "!update":
-            await message.channel.send("Updating Data...")
+            msg = await message.channel.send("⏰ Updating Data...")
             response = WebScraping.downloadData()
-            await message.channel.send(response)
+            await msg.edit(content="✅ Updating Data... Done!")
             return
     except Exception as e:
         print("Error occured: " + e)
