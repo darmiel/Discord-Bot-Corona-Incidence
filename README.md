@@ -14,3 +14,6 @@ Creates a discord bot that responds to !, if a name of a german countie is typed
 
 ## To-Do
 * Save data to a JSON file and use some statistics 
+
+# Fork
+![gif](../assets/demo.gif)
