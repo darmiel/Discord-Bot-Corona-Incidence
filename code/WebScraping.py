@@ -4,44 +4,47 @@ import os
 from datetime import date
 import csv
 
-from difflib import get_close_matches 
+from difflib import get_close_matches
 
-def dictgenerator ():
+CSV_FILE_NAME = "RKIData.csv"
 
-    csvData = []
+def generate_dict():
+    csv_data = []
     dictionary = {}
-    
-    if os.path.exists("RKIData.csv") == False:
-        respone = downloadData()
+
+    if not os.path.exists(CSV_FILE_NAME):
+        response = download_data()
         if response[0] == True:
-            print("Success: " + respone[1])
+            print("Success: " + response[1])
         else:
-            print("Failed: " + respone[1])
+            print("Failed: " + response[1])
 
-    i = 0
-    with open("RKIData.csv") as file:
-        data = csv.reader(file)
-        for line in data:
-            if i != 0:
-                csvData.append(line)
-            i = i + 1
+    with open(CSV_FILE_NAME) as f:
+        data = csv.reader(f)
+        for i, line in enumerate(data):
+            # skip header
+            if i == 0:
+                continue
+            csv_data.append(line)
 
-    for line in csvData:
+    for line in csv_data:
         dictionary[line[0] + " " + line[1]] = (line[3], line[4], line[5])
-        
+
     return dictionary
 
-def findCountie(countie, dictionary):
-    prefix = ""
-    
-    #load config file
-    config = loadConfig("config.json")
 
-    dictlist = list(dictionary)     #take dict from dictgenerator and convert it to a list
-    namecountie = get_close_matches(countie, dictlist, cutoff = 0)[0]   #take user input from discord and match it to the closest match in the dictionary
-    
-    
-    comulative = float(dictionary[namecountie][2])
+def find_county(county, dictionary):
+    prefix = ""
+
+    # load config file
+    config = load_config("config.json")
+
+    # take dict from dictgenerator and convert it to a list
+    dictlist = list(dictionary)
+    # take user input from discord and match it to the closest match in the dictionary
+    namecounty = get_close_matches(county, dictlist, cutoff=0)[0]
+
+    comulative = float(dictionary[namecounty][2])
     if comulative >= config["highInzidenz"]:
         prefix = "🔴"
     elif comulative >= config["middleInzidenz"]:
@@ -49,46 +52,50 @@ def findCountie(countie, dictionary):
     else:
         prefix = "🟢"
 
-    stringfordiscordchat = f"{prefix} {namecountie}: Gesamtfälle: {dictionary[namecountie][0]}, Gesamttode: {dictionary[namecountie][1]}, Inzidenz: {dictionary[namecountie][2]}"#create string that can be returned and used
+    # create string that can be returned and used
+    stringfordiscordchat = f"{prefix} {namecounty}: Gesamtfälle: {dictionary[namecounty][0]}, Gesamttode: {dictionary[namecounty][1]}, Inzidenz: {dictionary[namecounty][2]}"
 
     return stringfordiscordchat
 
-def loadConfig(path):
-    config = {}
-    if os.path.exists(path) == False:
-            config["lowInzidenz"] = 0
-            config["middleInzidenz"] = 50
-            config["highInzidenz"] = 100
-    else:
-        file = open(path)
-        config = json.loads(file.read())
-        file.close()
-        
+
+def load_config(path):
+    # default config
+    config = {
+        "lowInzidenz": 0,
+        "middleInzidenz": 50,
+        "highInzidenz": 100,
+    }
+
+    if os.path.exists(path):
+        with open(path) as f:
+            config = json.loads(f.read())
+
     return config
 
-def downloadData():
-
-    if os.path.exists("RKIData.csv"):
-        with open("RKIData.csv") as file:
-            file.readline()
-            dateLastUpdated = file.readline()
-            dateLastUpdated = dateLastUpdated.split(",")[6][:10]
-            dateToday = date.today().strftime("%d.%m.%Y")
-            if dateLastUpdated == dateToday:
+def download_data():
+    if os.path.exists(CSV_FILE_NAME):
+        with open(CSV_FILE_NAME) as f:
+            f.readline()
+            date_last_updated = f.readline()
+            date_last_updated = date_last_updated.split(",")[6][:10]
+            date_today = date.today().strftime("%d.%m.%Y")
+            if date_last_updated == date_today:
                 print("Already updated data today...")
                 return False, "Already updated data today..."
 
-    r = requests.get("https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=false&outSR=4326&f=json") #get json data from RKI website
+    # get json data from RKI website
+    r = requests.get("https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=false&outSR=4326&f=json")
     res = r.json()
 
     countydata = res["features"]
     length = len(list(countydata))
-    
-    with open("RKIData.csv", "w") as file:
-        file.write("Stadtname, Kreis, Bundesland, Faelle, Tode, Inzidenz, Zuletzt_geupdatet\n")
+
+    with open("RKIData.csv", "w") as f:
+        f.write(
+            "Stadtname, Kreis, Bundesland, Faelle, Tode, Inzidenz, Zuletzt_geupdatet\n")
         for i in range(0, length):
-            for channel in countydata[i].values():                
+            for channel in countydata[i].values():
                 data = f"{channel['GEN']},{channel['BEZ']},{channel['BL']},{channel['cases']},{channel['deaths']},{channel['cases7_per_100k_txt'].replace(',','.')},{channel['last_update']}\n"
-                file.write(data)
+                f.write(data)
 
     return True, "Updated sucessfully..."
