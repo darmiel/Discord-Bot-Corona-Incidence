@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from importlib import reload
 from datetime import date
 from sys import argv
+from time import time
 
 if __name__ == "__main__":
     load_dotenv()
@@ -73,9 +74,25 @@ if __name__ == "__main__":
                     return
 
                 msg = await message.channel.send(f"⏰ Searching for county **{county}**...")
-                printcommand = WebScraping.find_county(county, dictionary)
-                
-                await msg.edit(content=printcommand)
+                time_start = time()
+
+                prefix, color, name, cases, deaths, incidence = WebScraping.find_county(county, dictionary)
+                # build embed
+                embed = discord.Embed(
+                  title=f"{prefix} **{name}**",
+                  color=color
+                )
+                embed.add_field(name="👥 Fälle (Gesamt)", value=cases, inline=True)
+                embed.add_field(name="☠️ Tode (Gesamt)", value=deaths, inline=True)
+
+                embed.add_field(name="👉 Inzidenz", value=incidence, inline=True)
+
+                # Add emoji if not in production mode
+                # to be able to distinguish the development mode in a productive environment
+                if not PRODUCTION_MODE:
+                  embed.add_field(name="👾", value="yes", inline=True)
+
+                await msg.edit(content=f"*Fetched in **{round((time()-time_start)*1000, 2)}ms***", embed=embed)
         except Exception as e:
             print("Error occured: " + e)
 

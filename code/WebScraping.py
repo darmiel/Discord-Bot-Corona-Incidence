@@ -33,8 +33,12 @@ def generate_dict():
     return dictionary
 
 
-def find_county(county, dictionary):
+"""
+Returns: Prefix, PrefixColor, Name, Cases, Deaths, Incidence
+"""
+def find_county(county, dictionary) -> [str, str, int, int, int]:
     prefix = ""
+    prefix_color = 123
 
     # load config file
     config = load_config("config.json")
@@ -47,15 +51,15 @@ def find_county(county, dictionary):
     comulative = float(dictionary[namecounty][2])
     if comulative >= config["highInzidenz"]:
         prefix = "🔴"
+        prefix_color = 15859792 # bright red
     elif comulative >= config["middleInzidenz"]:
         prefix = "🟡"
+        prefix_color = 15575296 # gold
     else:
         prefix = "🟢"
+        prefix_color = 57347 # lime
 
-    # create string that can be returned and used
-    stringfordiscordchat = f"{prefix} {namecounty}: Gesamtfälle: {dictionary[namecounty][0]}, Gesamttode: {dictionary[namecounty][1]}, Inzidenz: {dictionary[namecounty][2]}"
-
-    return stringfordiscordchat
+    return prefix, prefix_color, namecounty, dictionary[namecounty][0], dictionary[namecounty][1], dictionary[namecounty][2]
 
 
 def load_config(path):
