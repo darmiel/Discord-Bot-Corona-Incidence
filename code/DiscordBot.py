@@ -95,5 +95,3 @@ if __name__ == "__main__":
                 await msg.edit(content=f"*Fetched in **{round((time()-time_start)*1000, 2)}ms***", embed=embed)
         except Exception as e:
             print("Error occured: " + e)
-
-    client.run(TOKEN)
