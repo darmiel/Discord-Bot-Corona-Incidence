@@ -5,13 +5,18 @@ import os
 from dotenv import load_dotenv
 from importlib import reload
 from datetime import date
-
+from sys import argv
 
 load_dotenv()
 
 TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 PREFIX = "😷"
-PRODUCTION_MODE = True
+PRODUCTION_MODE = False
+
+for argument in argv:
+    print(argument)
+    if argument == "-p":
+        PRODUCTION_MODE = True
 
 dictionary = WebScraping.dictgenerator()
 

@@ -49,7 +49,7 @@ def findCountie(countie, dictionary):
     else:
         prefix = "🟢"
 
-    stringfordiscordchat = f"{prefix}{namecountie}: Gesamtfälle: {dictionary[namecountie][0]}, Gesamttode: {dictionary[namecountie][1]}, Inzidenz: {dictionary[namecountie][2]}"#create string that can be returned and used
+    stringfordiscordchat = f"{prefix} {namecountie}: Gesamtfälle: {dictionary[namecountie][0]}, Gesamttode: {dictionary[namecountie][1]}, Inzidenz: {dictionary[namecountie][2]}"#create string that can be returned and used
 
     return stringfordiscordchat
 
@@ -63,7 +63,6 @@ def loadConfig(path):
         file = open(path)
         config = json.loads(file.read())
         file.close()
-        print(config)
         
     return config
 
