@@ -1,3 +1,4 @@
+import nest_asyncio
 import discord
 import os
 
@@ -6,7 +7,7 @@ import WebScraping
 from dotenv import load_dotenv
 from importlib import reload
 from datetime import date
-from sys import argv, platform
+from sys import argv
 from time import time
 
 if __name__ == "__main__":
@@ -94,10 +95,3 @@ if __name__ == "__main__":
                 await msg.edit(content=f"*Fetched in **{round((time()-time_start)*1000, 2)}ms***", embed=embed)
         except Exception as e:
             print("Error occured: " + e)
-
-    if not (platform == "win32" or platform == "win64"):
-        print("👉 Using nest_asyncio")
-        import nest_asyncio
-        nest_asyncio.apply()
-        
-    client.run(TOKEN)
