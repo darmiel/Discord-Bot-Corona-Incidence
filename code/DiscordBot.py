@@ -14,7 +14,6 @@ PREFIX = "😷"
 PRODUCTION_MODE = False
 
 for argument in argv:
-    print(argument)
     if argument == "-p":
         PRODUCTION_MODE = True
 
