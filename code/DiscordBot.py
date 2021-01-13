@@ -25,8 +25,6 @@ if __name__ == "__main__":
 
     capture_prefix = False
     for argument in argv:
-        print(argument)
-
         # Build prefix
         # From this point on it would probably make more sense to do the whole thing via an Args parse lib 😄
         if capture_prefix:
