@@ -17,6 +17,7 @@ for argument in argv:
     if argument == "-p":
         PRODUCTION_MODE = True
 
+
 dictionary = WebScraping.dictgenerator()
 
 client = discord.Client()
@@ -56,4 +57,5 @@ async def on_message(message):
     except Exception as e:
         print("Error occured: " + e)
 
+nest_asyncio.apply()
 client.run(TOKEN)
