@@ -85,12 +85,12 @@ if __name__ == "__main__":
                 embed.add_field(name="👥 Fälle (Gesamt)", value=cases, inline=True)
                 embed.add_field(name="☠️ Tode (Gesamt)", value=deaths, inline=True)
 
-                embed.add_field(name="👉 Inzidenz", value=incidence, inline=True)
-
                 # Add emoji if not in production mode
                 # to be able to distinguish the development mode in a productive environment
                 if not PRODUCTION_MODE:
                   embed.add_field(name="👾", value="yes", inline=True)
+
+                embed.add_field(name="👉 Inzidenz", value=incidence, inline=False)
 
                 await msg.edit(content=f"*Fetched in **{round((time()-time_start)*1000, 2)}ms***", embed=embed)
         except Exception as e:
