@@ -8,7 +8,10 @@ from datetime import date
 
 
 load_dotenv()
+
 TOKEN = os.getenv('DISCORD_BOT_TOKEN')
+PREFIX = "😷"
+PRODUCTION_MODE = True
 
 dictionary = WebScraping.dictgenerator()
 
@@ -20,24 +23,32 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-
     try:
         command = message.content
-        reload(WebScraping)
-        if command.startswith("😷"):          
-            countie = message.content
-            msg = await message.channel.send("⏰ Searching for county...")
-            printcommand = WebScraping.findCountie(countie,dictionary)
+        
+        # Reload WebScraping module only in development mode, because among other things "requests" is quite a large module, 
+        # which can lead to longer waiting times. 
+        # Besides, you don't need the live updating in productive mode anyway.
+        if not PRODUCTION_MODE:
+            reload(WebScraping)
+            
+        if command.startswith(PREFIX):
+            # Strip prefix from message ("😷 test" -> "test")
+            county = message.content[len(PREFIX):].strip()
+            
+            # New update command: 😷!update to prevent prefix overloads with other discord bots
+            if county == "!update":
+                msg = await message.channel.send("⏰ Updating Data...")
+                response = WebScraping.downloadData()
+                if response[0] == True:
+                    await msg.edit(content=f"✅ Updating Data... Done: {response[1]}")
+                else:
+                    await msg.edit(content=f"❌ Updating Data... Failed: {response[1]}")
+                return
+            
+            msg = await message.channel.send(f"⏰ Searching for county **{county}**...")
+            printcommand = WebScraping.findCountie(county,dictionary)
             await msg.edit(content=printcommand)
-            return
-        elif command == "!update":
-            msg = await message.channel.send("⏰ Updating Data...")
-            response = WebScraping.downloadData()
-            if response[0] == True:
-                await msg.edit(content=f"✅ Updating Data... Done: {response[1]}")
-            else:
-                await msg.edit(content=f"❌ Updating Data... Failed: {response[1]}")
-            return
     except Exception as e:
         print("Error occured: " + e)
 
