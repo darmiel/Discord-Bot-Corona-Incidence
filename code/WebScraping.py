@@ -6,6 +6,7 @@ import csv
 
 from difflib import get_close_matches
 
+API_URL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=false&outSR=4326&f=json"
 CSV_FILE_NAME = "RKIData.csv"
 
 def generate_dict():
@@ -37,32 +38,45 @@ def generate_dict():
 Returns: Prefix, PrefixColor, Name, Cases, Deaths, Incidence
 """
 def find_county(county, dictionary) -> [str, str, int, int, int]:
-    prefix = ""
-    prefix_color = 123
-
-    # load config file
-    config = load_config("config.json")
-
     # take dict from dictgenerator and convert it to a list
     dictlist = list(dictionary)
     # take user input from discord and match it to the closest match in the dictionary
     namecounty = get_close_matches(county, dictlist, cutoff=0)[0]
 
-    comulative = float(dictionary[namecounty][2])
-    if comulative >= config["highInzidenz"]:
-        prefix = "🔴"
-        prefix_color = 15859792 # bright red
-    elif comulative >= config["middleInzidenz"]:
-        prefix = "🟡"
-        prefix_color = 15575296 # gold
-    else:
-        prefix = "🟢"
-        prefix_color = 57347 # lime
+    cumulative = float(dictionary[namecounty][2])
 
-    return prefix, prefix_color, namecounty, dictionary[namecounty][0], dictionary[namecounty][1], dictionary[namecounty][2]
+    # load config file
+    config = load_config("config.json")
+    prefix, color = check_filters(cumulative, config)
+
+    return prefix, color, namecounty, dictionary[namecounty][0], dictionary[namecounty][1], dictionary[namecounty][2]
 
 
-def load_config(path):
+"""
+Returns the prefix and color from a cumulative
+"""
+def check_filters(cumulative: float, config: dict) -> [str, int]:
+    filters = config["filters"]
+    
+    for f in filters:
+        if "lt" in f and not cumulative < f["lt"]:
+            continue
+        if "lte" in f and not cumulative <= f["lte"]:
+            continue
+        if "gt" in f and not cumulative > f["gt"]:
+            continue
+        if "gte" in f and not cumulative >= f["gte"]:
+            continue
+        if "eq" in f and not cumulative == f["eq"]:
+            continue
+        return f["prefix"], f["color"]
+    
+    # you can override the default by not specifing any filters in the array
+    print("Warn: No filter found for cumulative:", cumulative, "in config!")
+    return "😷", 0
+
+
+def load_config(path) -> dict:
     # default config
     config = {
         "lowInzidenz": 0,
@@ -76,6 +90,7 @@ def load_config(path):
 
     return config
 
+
 def download_data():
     if os.path.exists(CSV_FILE_NAME):
         with open(CSV_FILE_NAME) as f:
@@ -88,7 +103,7 @@ def download_data():
                 return False, "Already updated data today..."
 
     # get json data from RKI website
-    r = requests.get("https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=false&outSR=4326&f=json")
+    r = requests.get(API_URL)
     res = r.json()
 
     countydata = res["features"]

@@ -1,7 +1,9 @@
 import nest_asyncio
 import discord
-import WebScraping
 import os
+
+import WebScraping
+
 from dotenv import load_dotenv
 from importlib import reload
 from datetime import date
