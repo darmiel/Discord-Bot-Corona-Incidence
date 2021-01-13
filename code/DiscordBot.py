@@ -1,3 +1,4 @@
+#%%
 import nest_asyncio
 import discord
 import WebScraping
@@ -9,6 +10,7 @@ from datetime import date
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_BOT_TOKEN')
+
 
 dictionary = WebScraping.dictgenerator()
 
@@ -37,5 +39,8 @@ async def on_message(message):
     except Exception as e:
         print("Error occured: " + e)
 
+nest_asyncio.apply()
 client.run(TOKEN)
 
+
+# %%
